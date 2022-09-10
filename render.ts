@@ -23,7 +23,7 @@ class Render {
         const yMultiplier: number = 220;
 
         const layout: DefaultSugiyamaOperator = sugiyama();
-        this.svgHelper = new CreateSvg(width, height);
+        this.svgHelper = new CreateSvg(width * xMultiplier, height * yMultiplier);
         this.svg = this.svgHelper.getSvg();
 
         layout(dag);

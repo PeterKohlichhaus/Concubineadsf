@@ -66,6 +66,20 @@ class DagManager {
         }
     }
 
+    public getDimension() {
+        let x = 0;
+        let y = 0;
+
+        for (const node of this.dag) {
+            if (node.x && node.y) {
+                x = Math.max(x, node.x);
+                y = Math.max(y, node.y);
+            }
+        }
+
+        return [x + .5, y + .5];
+    }
+
     public getFamilyGenerations(node: DagNode<NodeData, undefined>, generations: number) {
         const ancestors = arrayUnique(this.getAncestors(node.data, generations, []));
         const descendants = arrayUnique(this.getDescendants(node.data, generations + 1, []));

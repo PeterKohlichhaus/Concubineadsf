@@ -7,7 +7,7 @@ class Render {
         const xMultiplier = 220;
         const yMultiplier = 220;
         const layout = sugiyama();
-        this.svgHelper = new CreateSvg(width, height);
+        this.svgHelper = new CreateSvg(width * xMultiplier, height * yMultiplier);
         this.svg = this.svgHelper.getSvg();
         layout(dag);
         // How to draw edges
