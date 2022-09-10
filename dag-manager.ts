@@ -18,15 +18,19 @@ function arrayUnique(array: NodeData[]) {
 }
 
 class DagManager {
-    public data: NodeData[];
-    public dag: Dag<NodeData, undefined>;
-    public stratify: DefaultStratifyOperator;
+    private data: NodeData[];
+    private dag: Dag<NodeData, undefined>;
+    private stratify: DefaultStratifyOperator;
 
     public constructor(data: NodeData[]) {
         this.data = data;
         this.stratify = dagStratify();
         this.dag = this.stratify(data);
         this.dag.depth();
+    }
+
+    public getDag() {
+        return this.dag;
     }
 
     public createDag() {
@@ -64,20 +68,6 @@ class DagManager {
                 return node;
             }
         }
-    }
-
-    public getDimension() {
-        let x = 0;
-        let y = 0;
-
-        for (const node of this.dag) {
-            if (node.x && node.y) {
-                x = Math.max(x, node.x);
-                y = Math.max(y, node.y);
-            }
-        }
-
-        return [x + .5, y + .5];
     }
 
     public getFamilyGenerations(node: DagNode<NodeData, undefined>, generations: number) {
@@ -132,7 +122,7 @@ class DagManager {
         this.createDag();
     }
 
-    public removeNodeHelper(deleteNode: DagNode<NodeData, undefined>) {
+    private removeNodeHelper(deleteNode: DagNode<NodeData, undefined>) {
         for (const node of this.dag) {
             node.data.parentIds.forEach((parentId, index) => {
                 if (parentId === deleteNode.data.id) {

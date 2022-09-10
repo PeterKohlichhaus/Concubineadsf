@@ -18,6 +18,9 @@ class DagManager {
         this.dag = this.stratify(data);
         this.dag.depth();
     }
+    getDag() {
+        return this.dag;
+    }
     createDag() {
         this.dag = this.stratify(this.data);
         this.dag.depth();
@@ -49,17 +52,6 @@ class DagManager {
                 return node;
             }
         }
-    }
-    getDimension() {
-        let x = 0;
-        let y = 0;
-        for (const node of this.dag) {
-            if (node.x && node.y) {
-                x = Math.max(x, node.x);
-                y = Math.max(y, node.y);
-            }
-        }
-        return [x + .5, y + .5];
     }
     getFamilyGenerations(node, generations) {
         const ancestors = arrayUnique(this.getAncestors(node.data, generations, []));

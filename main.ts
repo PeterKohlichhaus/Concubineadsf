@@ -1,17 +1,10 @@
-import { DefaultSugiyamaOperator } from "d3-dag/dist/sugiyama/index.js";
-import { sugiyama } from 'd3-dag';
 import { data, DagManager, Render } from "./person-dag.js";
 
 const dagManager = new DagManager(data);
 
-const oldRender = new Render(dagManager.dag, 640, 1200);
-console.log(oldRender.stringifySvg());
-
-
 const deletionNode = dagManager.getNode("5");
 if (deletionNode) {
     dagManager.removeNode(deletionNode);
-    dagManager.createDag();
 }
 
 dagManager.addOrUpdateNode({
@@ -26,10 +19,5 @@ if (meNode) {
     dagManager.getFamilyGenerations(meNode, 2);
 }
 
-const layout: DefaultSugiyamaOperator = sugiyama();
-layout(dagManager.dag);
-
-const width = dagManager.getDimension()[0];
-const height = dagManager.getDimension()[1];
-const newRender = new Render(dagManager.dag, width, height);
-console.log(newRender.stringifySvg());
+const newRender = new Render(dagManager.getDag(), 220, 220, 60);
+console.log(newRender.svgString());

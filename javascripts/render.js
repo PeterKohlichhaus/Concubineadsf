@@ -2,14 +2,18 @@ import { sugiyama } from "d3-dag";
 import { CreateSvg } from './create-svg.js';
 import * as d3 from "d3";
 class Render {
-    constructor(dag, width, height) {
-        const nodeRadius = 60;
-        const xMultiplier = 220;
-        const yMultiplier = 220;
+    constructor(dag, xMultiplier, yMultiplier, nodeRadius) {
         const layout = sugiyama();
+        this.dag = dag;
+        const { width, height } = layout(this.dag);
         this.svgHelper = new CreateSvg(width * xMultiplier, height * yMultiplier);
         this.svg = this.svgHelper.getSvg();
-        layout(dag);
+        this.render(nodeRadius, xMultiplier, yMultiplier);
+    }
+    svgString() {
+        return this.svgHelper.svgString();
+    }
+    render(nodeRadius, xMultiplier, yMultiplier) {
         // How to draw edges
         const line = d3
             .line()
@@ -20,7 +24,7 @@ class Render {
         this.svg
             .append("g")
             .selectAll("path")
-            .data(dag.links())
+            .data(this.dag.links())
             .enter()
             .append("path")
             .attr("d", ({ points }) => {
@@ -36,7 +40,7 @@ class Render {
         const nodes = this.svg
             .append("g")
             .selectAll("g")
-            .data(dag.descendants())
+            .data(this.dag.descendants())
             .enter()
             .append("g")
             .attr("transform", ({ x, y }) => {
@@ -68,10 +72,10 @@ class Render {
             .attr("fill", "white")
             .attr("font-size", "1em");
         // Arrowheads
-        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 8.0);
+        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 10.0);
         this.svg.append('g')
             .selectAll('path')
-            .data(dag.links())
+            .data(this.dag.links())
             .enter()
             .append('path')
             .attr('d', arrow)
@@ -83,7 +87,7 @@ class Render {
                 const ty = target.y * yMultiplier;
                 const dx = sx - tx;
                 const dy = sy - ty;
-                const scale = nodeRadius * 1.30 / Math.sqrt(dx * dx + dy * dy);
+                const scale = nodeRadius * 1.26 / Math.sqrt(dx * dx + dy * dy);
                 const angle = Math.atan2(-dy, -dx) * 180 / Math.PI + 90;
                 return `translate(${tx + dx * scale}, ${ty + dy * scale}) rotate(${angle})`;
             }
@@ -91,12 +95,6 @@ class Render {
         })
             .attr('fill', 'black')
             .attr('stroke', 'none');
-    }
-    getSvg() {
-        return this.svg;
-    }
-    stringifySvg() {
-        return this.svgHelper.stringifySvg();
     }
 }
 export { Render };

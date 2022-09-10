@@ -21,7 +21,7 @@ class CreateSvg {
         return this.svg;
     }
 
-    public stringifySvg(): string {
+    public svgString(): string {
         const node = this.svg.node();
         return (node) ? node.outerHTML : "";
     }

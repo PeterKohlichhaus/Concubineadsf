@@ -15,7 +15,7 @@ class CreateSvg {
     getSvg() {
         return this.svg;
     }
-    stringifySvg() {
+    svgString() {
         const node = this.svg.node();
         return (node) ? node.outerHTML : "";
     }
