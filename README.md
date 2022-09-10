@@ -1,5 +1,5 @@
-run the app
-node .\javascripts\main.js
+run the app <br />
+node .\javascripts\main.js <br />
 
-compile ts to js
-tsc -w
+compile ts to js <br />
+tsc -w <br />
