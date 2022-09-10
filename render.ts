@@ -19,8 +19,8 @@ class Render {
 
     public constructor(dag: Dag<NodeData, undefined>, width: number, height: number) {
         const nodeRadius: number = 60;
-        const xMultiplier: number = 200;
-        const yMultiplier: number = 150;
+        const xMultiplier: number = 220;
+        const yMultiplier: number = 220;
 
         const layout: DefaultSugiyamaOperator = sugiyama();
         this.svgHelper = new CreateSvg(width, height);
@@ -92,6 +92,39 @@ class Render {
             .attr("alignment-baseline", "middle")
             .attr("fill", "white")
             .attr("font-size", "1em");
+
+        // Arrowheads
+        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 8.0);
+        this.svg.append('g')
+            .selectAll('path')
+            .data(dag.links())
+            .enter()
+            .append('path')
+            .attr('d', arrow)
+            .attr('transform', ({
+                source,
+                target
+            }) => {
+                if (target.x && target.y && source.x && source.y) {
+                    const sx = source.x * xMultiplier;
+                    const sy = source.y * yMultiplier;
+
+                    const tx: number = target.x * xMultiplier;
+                    const ty: number = target.y * yMultiplier;
+
+                    const dx: number = sx - tx;
+                    const dy: number = sy - ty;
+
+                    const scale = nodeRadius * 1.30 / Math.sqrt(dx * dx + dy * dy);
+
+                    const angle = Math.atan2(-dy, -dx) * 180 / Math.PI + 90;
+
+                    return `translate(${tx + dx * scale}, ${ty + dy * scale}) rotate(${angle})`;
+                }
+                return ``
+            })
+            .attr('fill', 'black')
+            .attr('stroke', 'none');
     }
 }
 

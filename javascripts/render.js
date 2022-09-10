@@ -4,8 +4,8 @@ import * as d3 from "d3";
 class Render {
     constructor(dag, width, height) {
         const nodeRadius = 60;
-        const xMultiplier = 200;
-        const yMultiplier = 150;
+        const xMultiplier = 220;
+        const yMultiplier = 220;
         const layout = sugiyama();
         this.svgHelper = new CreateSvg(width, height);
         this.svg = this.svgHelper.getSvg();
@@ -67,6 +67,30 @@ class Render {
             .attr("alignment-baseline", "middle")
             .attr("fill", "white")
             .attr("font-size", "1em");
+        // Arrowheads
+        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 8.0);
+        this.svg.append('g')
+            .selectAll('path')
+            .data(dag.links())
+            .enter()
+            .append('path')
+            .attr('d', arrow)
+            .attr('transform', ({ source, target }) => {
+            if (target.x && target.y && source.x && source.y) {
+                const sx = source.x * xMultiplier;
+                const sy = source.y * yMultiplier;
+                const tx = target.x * xMultiplier;
+                const ty = target.y * yMultiplier;
+                const dx = sx - tx;
+                const dy = sy - ty;
+                const scale = nodeRadius * 1.30 / Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(-dy, -dx) * 180 / Math.PI + 90;
+                return `translate(${tx + dx * scale}, ${ty + dy * scale}) rotate(${angle})`;
+            }
+            return ``;
+        })
+            .attr('fill', 'black')
+            .attr('stroke', 'none');
     }
     getSvg() {
         return this.svg;
