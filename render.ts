@@ -3,6 +3,8 @@ import { CreateSvg } from './create-svg.js';
 import * as d3 from "d3";
 import { Dag, Point } from "d3-dag/dist/dag/index.js";
 import { NodeData } from "./node-data";
+import sharp from 'sharp';
+import fs from "fs";
 
 class Render {
     private svg;
@@ -22,6 +24,15 @@ class Render {
 
     public svgString() {
         return this.svgHelper.svgString();
+    }
+
+    public async createImage() {
+        const buffer =
+            await sharp(Buffer.from(this.svgString()))
+                .png()
+                .toBuffer();
+
+        fs.writeFileSync("images/dag.png", buffer);
     }
 
     private render(nodeRadius: number, xMultiplier: number, yMultiplier: number) {
@@ -107,7 +118,7 @@ class Render {
                     const sy = source.y * yMultiplier;
 
                     const tx = target.x * xMultiplier;
-                    const ty= target.y * yMultiplier;
+                    const ty = target.y * yMultiplier;
 
                     const dx = sx - tx;
                     const dy = sy - ty;

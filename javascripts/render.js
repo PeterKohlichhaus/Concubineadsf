@@ -1,6 +1,8 @@
 import { sugiyama } from "d3-dag";
 import { CreateSvg } from './create-svg.js';
 import * as d3 from "d3";
+import sharp from 'sharp';
+import fs from "fs";
 class Render {
     constructor(dag, xMultiplier, yMultiplier, nodeRadius) {
         const layout = sugiyama();
@@ -12,6 +14,12 @@ class Render {
     }
     svgString() {
         return this.svgHelper.svgString();
+    }
+    async createImage() {
+        const buffer = await sharp(Buffer.from(this.svgString()))
+            .png()
+            .toBuffer();
+        fs.writeFileSync("images/dag.png", buffer);
     }
     render(nodeRadius, xMultiplier, yMultiplier) {
         // How to draw edges

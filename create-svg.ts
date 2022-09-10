@@ -2,12 +2,13 @@ import { select, Selection } from "d3"
 import { JSDOM } from "jsdom";
 
 class CreateSvg {
-    private svg: Selection<SVGSVGElement, unknown, null, undefined>;
+    private svg;
+    private window;
 
     public constructor(width: number, height: number) {
         const jsdom = new JSDOM();
-        const window = jsdom.window;
-        const document = window.document;
+        this.window = jsdom.window;
+        const document = this.window.document;
 
         const d3Element = select(document.body);
         this.svg = d3Element
@@ -17,11 +18,15 @@ class CreateSvg {
             .attr("height", height);
     }
 
-    public getSvg(): Selection<SVGSVGElement, unknown, null, undefined> {
+    public getWindow() {
+        return this.window;
+    }
+
+    public getSvg() {
         return this.svg;
     }
 
-    public svgString(): string {
+    public svgString() {
         const node = this.svg.node();
         return (node) ? node.outerHTML : "";
     }
