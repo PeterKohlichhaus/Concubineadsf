@@ -19,6 +19,6 @@ if (meNode) {
     dagManager.getFamilyGenerations(meNode, 2);
 }
 
-const newRender = new Render(dagManager.getDag(), 220, 220, 60);
+const newRender = new Render(dagManager.getDag(), 220, 220, 75);
 newRender.createImage();
 //console.log(newRender.svgString());

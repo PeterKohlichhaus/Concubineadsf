@@ -6,6 +6,10 @@ import { NodeData } from "./node-data";
 import sharp from 'sharp';
 import fs from "fs";
 
+function truncate(str: string, n: number) {
+    return (str.length > n) ? str.slice(0, n - 1) + '..' : str;
+};
+
 class Render {
     private svg;
     private svgHelper;
@@ -43,6 +47,13 @@ class Render {
             .x((d) => d[0] * xMultiplier)
             .y((d) => d[1] * yMultiplier);
 
+        // Background color
+        this.svg
+            .append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "white");
+
         // Plot edges
         this.svg
             .append("g")
@@ -77,7 +88,7 @@ class Render {
             });
 
         // Plot node circles
-        nodes
+        /*nodes
             .append("circle")
             .attr("r", nodeRadius)
             .attr("fill", (n) => n.data.color);
@@ -88,21 +99,58 @@ class Render {
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", "3px")
+            .attr("opacity", ".5");*/
+
+        /*nodes
+            .append("ellipse")
+            .attr("rx", 80)
+            .attr("ry", 50)
+            .attr("fill", (n) => n.data.color);
+    
+        nodes
+            .append("ellipse")
+            .attr("rx", 80)
+            .attr("ry", 50)
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", "3px")
+            .attr("opacity", ".5");*/
+
+
+        nodes
+            .append("rect")
+            .attr("x", -80)
+            .attr("y", -40)
+            .attr("rx", 40)
+            .attr("width", 160)
+            .attr("height", 80)
+            .attr("fill", (n) => n.data.color);
+
+        nodes
+            .append("rect")
+            .attr("x", -80)
+            .attr("y", -40)
+            .attr("rx", 40)
+            .attr("width", 160)
+            .attr("height", 80)
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", "3px")
             .attr("opacity", ".5");
 
         // Add text to nodes
         nodes
             .append("text")
-            .text((d) => d.data.name + d.value)
-            .attr("font-weight", "bold")
-            .attr("font-family", "sans-serif")
+            .text((d) => truncate(d.data.name, 13))
+            .attr("font-weight", "bolder")
+            .attr("font-family", "Arial, Helvetica, sans-serif")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
             .attr("fill", "white")
-            .attr("font-size", "1em");
+            .attr("font-size", "18px");
 
         // Arrowheads
-        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 10.0);
+        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 16.0);
         this.svg.append('g')
             .selectAll('path')
             .data(this.dag.links())
@@ -114,7 +162,7 @@ class Render {
                 target
             }) => {
                 if (target.x && target.y && source.x && source.y) {
-                    const sx = source.x * xMultiplier;
+                    const sx: number = source.x * xMultiplier;
                     const sy = source.y * yMultiplier;
 
                     const tx = target.x * xMultiplier;
@@ -123,11 +171,21 @@ class Render {
                     const dx = sx - tx;
                     const dy = sy - ty;
 
-                    const scale = nodeRadius * 1.26 / Math.sqrt(dx * dx + dy * dy);
+                    let xPerY = 0;
+                    let yPerX = 0;
+
+                    if ((target.y - source.y) > 0) {
+                        xPerY = Math.abs(target.x - source.x) / (target.y - source.y);
+                    }
+                    if ((target.x - source.x) > 0) {
+                        yPerX = (target.y - source.y) / (target.x - source.x);
+                    }
+
+                    const scale = nodeRadius * 0.74 / Math.sqrt(dx * dx + dy * dy);
 
                     const angle = Math.atan2(-dy, -dx) * 180 / Math.PI + 90;
 
-                    return `translate(${tx + dx * scale}, ${ty + dy * scale}) rotate(${angle})`;
+                    return `translate(${tx + dx * scale + (dx / 50)}, ${ty + dy * scale + (xPerY * -8)}) rotate(${angle})`;
                 }
                 return ``
             })

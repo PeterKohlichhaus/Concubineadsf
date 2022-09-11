@@ -37,7 +37,7 @@ const data = [
     },
     {
         "id": "6",
-        "name": "muddafuck male",
+        "name": "muddafucker male",
         "parentIds": ["4"],
         "color": "#00CC22"
     },
