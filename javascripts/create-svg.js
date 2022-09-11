@@ -11,6 +11,9 @@ class CreateSvg {
             .attr("xmlns", "http://www.w3.org/2000/svg")
             .attr("width", width)
             .attr("height", height);
+        this.svg
+            .append("style")
+            .text("g text { filter: drop-shadow( 0 0 2px #000000 ); }");
     }
     getWindow() {
         return this.window;

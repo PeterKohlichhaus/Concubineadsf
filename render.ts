@@ -52,7 +52,7 @@ class Render {
             .append("rect")
             .attr("width", "100%")
             .attr("height", "100%")
-            .attr("fill", "white");
+            .attr("fill", "#ffffff");
 
         // Plot edges
         this.svg
@@ -72,7 +72,7 @@ class Render {
             })
             .attr("fill", "none")
             .attr("stroke-width", "2px")
-            .attr("stroke", "black");
+            .attr("stroke", "#000000");
 
         const nodes = this.svg
             .append("g")
@@ -87,56 +87,70 @@ class Render {
                 return '';
             });
 
-        // Plot node circles
-        /*nodes
-            .append("circle")
-            .attr("r", nodeRadius)
-            .attr("fill", (n) => n.data.color);
-
-        nodes
-            .append("circle")
-            .attr("r", nodeRadius - 1)
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", "3px")
-            .attr("opacity", ".5");*/
-
-        /*nodes
-            .append("ellipse")
-            .attr("rx", 80)
-            .attr("ry", 50)
-            .attr("fill", (n) => n.data.color);
-    
-        nodes
-            .append("ellipse")
-            .attr("rx", 80)
-            .attr("ry", 50)
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", "3px")
-            .attr("opacity", ".5");*/
-
-
         nodes
             .append("rect")
             .attr("x", -80)
             .attr("y", -40)
-            .attr("rx", 40)
+            .attr("rx", 46)
             .attr("width", 160)
-            .attr("height", 80)
+            .attr("height", 100)
             .attr("fill", (n) => n.data.color);
 
         nodes
             .append("rect")
             .attr("x", -80)
             .attr("y", -40)
-            .attr("rx", 40)
+            .attr("rx", 46)
             .attr("width", 160)
-            .attr("height", 80)
+            .attr("height", 100)
             .attr("fill", "none")
-            .attr("stroke", "black")
+            .attr("stroke", "#000000")
             .attr("stroke-width", "3px")
-            .attr("opacity", ".5");
+            .attr("opacity", ".70");
+
+        // Arrowheads
+        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 28.0);
+        this.svg.append('g')
+            .selectAll('path')
+            .data(this.dag.links())
+            .enter()
+            .append('path')
+            .attr('d', arrow)
+            .attr('transform', ({
+                points
+            }) => {
+                const start = points.at(-2);
+                const end = points.at(-1);
+                if (start && end) {
+                    const sx: number = start.x * xMultiplier;
+                    const sy = start.y * yMultiplier;
+
+                    const tx = end.x * xMultiplier;
+                    const ty = end.y * yMultiplier;
+
+                    const dx = sx - tx;
+                    const dy = sy - ty;
+
+                    let xPerY = 0;
+                    let yPerX = 0;
+
+                    if ((end.y - start.y) > 0) {
+                        xPerY = Math.abs(end.x - start.x) / (end.y - start.y);
+                    }
+                    if ((end.x - start.x) > 0) {
+                        yPerX = (end.y - start.y) / (end.x - start.x);
+                    }
+
+                    const scale = nodeRadius * 0.69 / Math.sqrt(dx * dx + dy * dy);
+
+                    const angle = Math.atan2(-dy, -dx) * 180 / Math.PI + 90;
+
+                    return `translate(${tx + dx * scale + (dx / 26)}, ${ty + dy * scale + (xPerY * -16)}) rotate(${angle})`;
+                }
+                return ``
+            })
+            .attr('fill', 'black')
+            .attr('stroke', 'none');
 
         // Add text to nodes
         nodes
@@ -145,52 +159,10 @@ class Render {
             .attr("font-weight", "bolder")
             .attr("font-family", "Arial, Helvetica, sans-serif")
             .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle")
+            .attr("dy", "0.8em")
             .attr("fill", "white")
             .attr("font-size", "18px");
 
-        // Arrowheads
-        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 16.0);
-        this.svg.append('g')
-            .selectAll('path')
-            .data(this.dag.links())
-            .enter()
-            .append('path')
-            .attr('d', arrow)
-            .attr('transform', ({
-                source,
-                target
-            }) => {
-                if (target.x && target.y && source.x && source.y) {
-                    const sx: number = source.x * xMultiplier;
-                    const sy = source.y * yMultiplier;
-
-                    const tx = target.x * xMultiplier;
-                    const ty = target.y * yMultiplier;
-
-                    const dx = sx - tx;
-                    const dy = sy - ty;
-
-                    let xPerY = 0;
-                    let yPerX = 0;
-
-                    if ((target.y - source.y) > 0) {
-                        xPerY = Math.abs(target.x - source.x) / (target.y - source.y);
-                    }
-                    if ((target.x - source.x) > 0) {
-                        yPerX = (target.y - source.y) / (target.x - source.x);
-                    }
-
-                    const scale = nodeRadius * 0.74 / Math.sqrt(dx * dx + dy * dy);
-
-                    const angle = Math.atan2(-dy, -dx) * 180 / Math.PI + 90;
-
-                    return `translate(${tx + dx * scale + (dx / 50)}, ${ty + dy * scale + (xPerY * -8)}) rotate(${angle})`;
-                }
-                return ``
-            })
-            .attr('fill', 'black')
-            .attr('stroke', 'none');
     }
 }
 

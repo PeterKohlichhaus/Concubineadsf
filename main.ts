@@ -10,8 +10,8 @@ if (deletionNode) {
 dagManager.addOrUpdateNode({
     "id": "4",
     "name": "bajskorv",
-    "parentIds": ["2"],
-    "color": "#666666"
+    "parentIds": ["2", "0"],
+    "color": "#dddddd"
 });
 
 const meNode = dagManager.getNode("2");
@@ -19,6 +19,6 @@ if (meNode) {
     dagManager.getFamilyGenerations(meNode, 2);
 }
 
-const newRender = new Render(dagManager.getDag(), 220, 220, 75);
+const newRender = new Render(dagManager.getDag(), 220, 160, 75);
 newRender.createImage();
 //console.log(newRender.svgString());

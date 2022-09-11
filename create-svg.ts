@@ -1,4 +1,4 @@
-import { select, Selection } from "d3"
+import { select } from "d3"
 import { JSDOM } from "jsdom";
 
 class CreateSvg {
@@ -15,7 +15,11 @@ class CreateSvg {
             .append("svg")
             .attr("xmlns", "http://www.w3.org/2000/svg")
             .attr("width", width)
-            .attr("height", height);
+            .attr("height", height)
+
+        this.svg
+            .append("style")
+            .text("g text { filter: drop-shadow( 0 0 2px #000000 ); }");
     }
 
     public getWindow() {
