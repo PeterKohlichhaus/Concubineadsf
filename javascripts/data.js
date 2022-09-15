@@ -52,6 +52,12 @@ const data = [
         "name": "pls work",
         "parentIds": ["7"],
         "color": "#cc22cc"
+    },
+    {
+        "id": "9",
+        "name": "woahhh",
+        "parentIds": ["0", "2"],
+        "color": "#0055aa"
     }
 ];
 export { data };

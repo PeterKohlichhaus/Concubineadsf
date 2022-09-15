@@ -49,12 +49,17 @@ const data: NodeData[] = [
         "parentIds": ["6"],
         "color": "#cc8866"
     },
-    
     {
         "id": "8",
         "name": "pls work",
         "parentIds": ["7"],
         "color": "#cc22cc"
+    },
+    {
+        "id": "9",
+        "name": "woahhh",
+        "parentIds": ["0", "2"],
+        "color": "#0055aa"
     }
 ];
 
