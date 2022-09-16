@@ -1,7 +1,6 @@
-import { line } from "d3";
-
 class Collision {
     public stadiumCollider(x: number, y: number, width: number, height: number, rx: number, ry: number): StadiumCollider {
+        const offset = 0;
         const halfHeight = height * 0.5;
         const halfWidth = width * 0.5;
         const lineColliders = [
@@ -15,7 +14,7 @@ class Collision {
                 x - halfWidth + rx,
                 y + halfHeight,
                 x + halfWidth - rx,
-                y + halfHeight
+                y + halfHeight,
             ),
             this.lineCollider(
                 x - halfWidth,
@@ -29,27 +28,28 @@ class Collision {
                 x + halfWidth,
                 y + halfHeight - ry
             )];
+
         const ellipseColliders = [
             this.ellipseCollider(
-                x - halfWidth + rx,
+                x - halfWidth + rx - offset,
                 y - halfHeight + ry,
                 rx,
                 ry
             ),
             this.ellipseCollider(
-                x + halfWidth - rx,
+                x + halfWidth - rx + offset,
                 y - halfHeight + ry,
                 rx,
                 ry
             ),
             this.ellipseCollider(
-                x - halfWidth + rx,
+                x - halfWidth + rx - offset,
                 y + halfHeight - ry,
                 rx,
                 ry
             ),
             this.ellipseCollider(
-                x + halfWidth - rx,
+                x + halfWidth - rx + offset,
                 y + halfHeight - ry,
                 rx,
                 ry
@@ -75,8 +75,9 @@ class Collision {
     public lineCollider(x1: number, y1: number, x2: number, y2: number): LineCollider {
         const v = this.vertex(x1, y1);
         const w = this.vertex(x2, y2);
-        const angle = (Math.atan2(y1 - y2, x1 - x2) * (180 / Math.PI) + 90) % 360;
+        const angle = Math.atan2(y1 - y2, x1 - x2)/* * 1.5 * Math.PI;*/
         const length = this.lineDistance(v, w);
+
         return { start: v, end: w, length, angle };
     }
 
@@ -92,6 +93,23 @@ class Collision {
         const dx = v.x - w.x;
         const dy = v.y - w.y;
         return Math.hypot(dx, dy);
+    }
+
+    public radiansToDegrees(radians: number) {
+        return radians * (180 / Math.PI);
+    }
+
+    public degreesToRadians(degrees: number) {
+        return degrees * (Math.PI / 180);
+    }
+
+    public scaleLine(l: LineCollider, scale: number) {
+        const length = l.length - scale;
+
+        return this.vertex(
+            l.start.x + length * -Math.cos(l.angle),
+            l.start.y + length * -Math.sin(l.angle)
+        );
     }
 
     // line intercept math by Paul Bourke http://paulbourke.net/geometry/pointlineplane/

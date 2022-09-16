@@ -10,7 +10,7 @@ const source = collision.vertex(270, 20);
 const target = collision.vertex(140, 100);
 const lineCollider = collision.lineCollider(source.x, source.y, target.x, target.y);
 
-const stadiumCollider = collision.stadiumCollider(target.x, target.y, 160, 100, 30, 30);
+const stadiumCollider = collision.stadiumCollider(target.x, target.y, 160, 100, 10, 10);
 
 stadiumCollider.lineColliders.forEach(lineCollider => {
     svg

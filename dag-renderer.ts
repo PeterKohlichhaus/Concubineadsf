@@ -7,19 +7,16 @@ import sharp from 'sharp';
 import fs from 'fs';
 import { Collision } from './collision-detection/collision.js';
 
-function sqr(x: number) { return x * x }
-function dist2(v: { x: number, y: number }, w: { x: number, y: number }) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
-
 function truncate(str: string, n: number) {
     return (str.length > n) ? str.slice(0, n - 1) + '..' : str;
 };
 
-class Render {
+class DagRenderer {
     private svg;
     private svgHelper;
     private dag;
 
-    public constructor(dag: Dag<NodeData, undefined>, xMultiplier: number, yMultiplier: number, nodeRadius: number) {
+    public constructor(dag: Dag<NodeData, undefined>, xMultiplier: number, yMultiplier: number, nodeWidth: number, nodeHeight: number, nodeRadius: number) {
         const layout = sugiyama().size([xMultiplier, yMultiplier]);
 
         this.dag = dag;
@@ -27,7 +24,7 @@ class Render {
         const { width, height } = layout(this.dag);
         this.svgHelper = new CreateSvg(width, height);
         this.svg = this.svgHelper.getSvg();
-        this.render(nodeRadius);
+        this.render(nodeWidth, nodeHeight, nodeRadius);
     }
 
     public svgString() {
@@ -43,7 +40,8 @@ class Render {
         fs.writeFileSync('images/dag.png', buffer);
     }
 
-    private render(nodeRadius: number) {
+    private render(nodeWidth: number, nodeHeight: number, nodeRadius: number) {
+        const arrowSize = 16;
         // How to draw edges
         const line = d3
             .line()
@@ -84,7 +82,7 @@ class Render {
             .data(this.dag.descendants())
             .enter()
             .append('g')
-            .attr('transform', ({ x, y }): string => {
+            .attr('transform', ({ x, y }) => {
                 if (x && y) {
                     return `translate(${x}, ${y})`;
                 }
@@ -93,27 +91,27 @@ class Render {
 
         nodes
             .append('rect')
-            .attr('x', -80)
-            .attr('y', -40)
-            .attr('rx', 46)
-            .attr('width', 160)
-            .attr('height', 100)
+            .attr('x', -nodeWidth * 0.5)
+            .attr('y', -nodeHeight * 0.5)
+            .attr('rx', nodeRadius)
+            .attr('width', nodeWidth)
+            .attr('height', nodeHeight)
             .attr('fill', (n) => n.data.color);
 
         nodes
             .append('rect')
-            .attr('x', -80)
-            .attr('y', -40)
-            .attr('rx', 46)
-            .attr('width', 160)
-            .attr('height', 100)
+            .attr('x', -nodeWidth * 0.5)
+            .attr('y', -nodeHeight * 0.5)
+            .attr('rx', nodeRadius)
+            .attr('width', nodeWidth)
+            .attr('height', nodeHeight)
             .attr('fill', 'none')
             .attr('stroke', '#000000')
             .attr('stroke-width', '3px')
             .attr('opacity', '.70');
 
         // Arrowheads
-        const arrow = d3.symbol().type(d3.symbolTriangle).size(nodeRadius * nodeRadius / 33.0);
+        const arrow = d3.symbol().type(d3.symbolTriangle2).size(arrowSize * arrowSize);
         this.svg.append('g')
             .selectAll('path')
             .data(this.dag.links())
@@ -128,13 +126,14 @@ class Render {
 
                 if (start && end) {
                     const collision = new Collision();
-                    const stadiumCollider = collision.stadiumCollider(end.x, end.y, 160, 100, 46, 46);
+                    const stadiumCollider = collision.stadiumCollider(end.x, end.y, nodeWidth, nodeHeight, nodeRadius, nodeRadius);
                     const lineCollider = collision.lineCollider(start.x, start.y, end.x, end.y);
                     const intersectionPoint = collision.intersectStadium(lineCollider, stadiumCollider);
 
                     if (intersectionPoint) {
                         const tmpLine = collision.lineCollider(start.x, start.y, intersectionPoint.x, intersectionPoint.y);
-                        return `translate(${intersectionPoint.x}, ${intersectionPoint.y}), rotate(${tmpLine.angle + 180})`;
+                        const ddd = collision.scaleLine(tmpLine, arrowSize*0.65);
+                        return `translate(${ddd.x}, ${ddd.y}), rotate(${collision.radiansToDegrees(tmpLine.angle) + 270})`;
                     }
                 }
                 return ``
@@ -149,11 +148,10 @@ class Render {
             .attr('font-weight', 'bolder')
             .attr('font-family', 'Arial, Helvetica, sans-serif')
             .attr('text-anchor', 'middle')
-            .attr('dy', '0.8em')
+            .attr('dy', '4px')
             .attr('fill', 'white')
             .attr('font-size', '18px');
-
     }
 }
 
-export { Render };
+export { DagRenderer };

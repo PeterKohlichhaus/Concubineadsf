@@ -1,4 +1,4 @@
-import { data, DagManager, Render } from "./person-dag.js";
+import { data, DagManager, DagRenderer } from "./person-dag.js";
 const dagManager = new DagManager(data);
 const deletionNode = dagManager.getNode("5");
 if (deletionNode) {
@@ -14,6 +14,5 @@ const meNode = dagManager.getNode("2");
 if (meNode) {
     dagManager.getFamilyGenerations(meNode, 2);
 }
-const newRender = new Render(dagManager.getDag(), 600, 800, 75);
+const newRender = new DagRenderer(dagManager.getDag(), 600, 800, 160, 80, 35);
 newRender.createImage();
-console.log(newRender.svgString());
