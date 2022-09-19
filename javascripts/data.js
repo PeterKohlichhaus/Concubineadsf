@@ -58,6 +58,12 @@ const data = [
         "name": "woahhh",
         "parentIds": ["0", "2"],
         "color": "#0055aa"
+    },
+    {
+        "id": "11",
+        "name": "wakanda",
+        "parentIds": ["8", "2"],
+        "color": "#22aa66"
     }
 ];
 export { data };

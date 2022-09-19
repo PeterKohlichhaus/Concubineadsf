@@ -1,22 +1,14 @@
-import { data } from "./data.js";
 import { dagStratify } from "d3-dag";
-function arrayUnique(array) {
-    const a = array.concat();
-    for (let i = 0; i < a.length; ++i) {
-        for (let j = i + 1; j < a.length; ++j) {
-            if (a[i] === a[j]) {
-                a.splice(j--, 1);
-            }
-        }
-    }
-    return a;
-}
+import { arrayUnique } from "./array-unique.js";
 class DagManager {
     constructor(data) {
         this.data = data;
         this.stratify = dagStratify();
         this.dag = this.stratify(data);
         this.dag.depth();
+    }
+    setData(node, data) {
+        this.data[Number(node.data.id)] = data;
     }
     getDag() {
         return this.dag;
@@ -26,39 +18,42 @@ class DagManager {
         this.dag.depth();
         return this.dag;
     }
-    addOrUpdateNode(newData) {
-        const node = this.dag.descendants().find((node) => {
-            return node.data.id === newData.id;
-        });
-        if (node) {
-            node.descendants().forEach((descendant) => {
-                const newIdx = newData.parentIds.find((parentId) => {
-                    return parentId === descendant.data.id;
-                });
-                if (newIdx) {
-                    throw "cycle";
-                }
-            });
+    isCyclic(node, newDataParents) {
+        if (node.descendants().some(({ data }) => {
+            if (newDataParents.includes(data.id)) {
+                return true;
+            }
+        })) {
+            return true;
         }
-        const index = this.data.findIndex((data) => {
-            return data.id === newData.id;
-        });
-        this.data[index] = newData;
-        this.createDag();
+        return false;
+    }
+    addOrUpdateNode(newData) {
+        const node = this.getNode(newData.id);
+        if (node) {
+            if (this.isCyclic(node, newData.parentIds)) {
+                return 'cycle!!!';
+            }
+        }
+        const updateNode = this.getNode(newData.id);
+        if (updateNode) {
+            this.setData(updateNode, newData);
+            this.createDag();
+        }
     }
     getNode(key) {
-        for (const node of this.dag) {
+        return this.dag.descendants().find((node) => {
             if (node.data.id === key) {
                 return node;
             }
-        }
+        });
     }
     getFamilyGenerations(node, generations) {
         const ancestors = arrayUnique(this.getAncestors(node.data, generations, []));
         const descendants = arrayUnique(this.getDescendants(node.data, generations + 1, []));
         let data = ancestors.concat(node.data);
-        data = arrayUnique(this.removeReferences(data));
-        this.data = arrayUnique(data.concat(descendants));
+        data = arrayUnique(data.concat(descendants));
+        this.data = arrayUnique(this.removeReferences(data));
         this.createDag();
     }
     getAncestors(nodeData, generations, ancestors) {
@@ -87,47 +82,32 @@ class DagManager {
         }
         return descendants;
     }
-    getData(node) {
-        return this.data[this.getDataIndex(node)];
+    addLink(firstNode, secondNode) {
+        firstNode.parentIds.push(secondNode.id);
+        this.addOrUpdateNode(firstNode);
     }
-    getDataIndex(node) {
-        return data.findIndex(dataNode => { return dataNode.id === node.data.id; });
-    }
-    removeNode(deleteNode) {
-        this.removeNodeHelper(deleteNode);
-        this.createDag();
-    }
-    removeNodeHelper(deleteNode) {
-        for (const node of this.dag) {
-            node.data.parentIds.forEach((parentId, index) => {
-                if (parentId === deleteNode.data.id) {
-                    node.data.parentIds.splice(index, 1);
-                }
-            });
+    removeLink(dataKey, removeKey) {
+        const dataNode = this.getNode(dataKey);
+        if (dataNode) {
+            dataNode.data.parentIds = dataNode.data.parentIds.filter(parentId => parentId !== removeKey);
+            this.setData(dataNode, dataNode.data);
+            this.createDag();
         }
-        const deleteIndex = this.getDataIndex(deleteNode);
-        this.data.splice(deleteIndex, 1);
     }
-    // Remove parentIds that references data.id's that do not exist
     removeReferences(data) {
-        // loop through data
-        for (let i = 0; i < data.length; i++) {
-            // cache length because it's slicing from the array it's iterating over
-            const cachedLength = data[i].parentIds.length;
-            for (let j = 0; j < cachedLength; j++) {
-                // loop through data a second time (witin the scope of the parentId loop)
+        data.forEach(({ parentIds }) => {
+            parentIds.forEach((parentId, index) => {
                 let flag = false;
-                data.forEach((p) => {
-                    if (p.id === data[i].parentIds[j]) {
+                data.forEach(({ id }) => {
+                    if (id === parentId) {
                         flag = true;
                     }
                 });
-                //console.log(flag, data[i], j);
                 if (!flag) {
-                    data[i].parentIds = data[i].parentIds.slice(j, 1);
+                    parentIds.splice(index, 1);
                 }
-            }
-        }
+            });
+        });
         return data;
     }
 }

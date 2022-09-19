@@ -6,10 +6,7 @@ import { NodeData } from './node-data';
 import sharp from 'sharp';
 import fs from 'fs';
 import { Collision } from './collision-detection/collision.js';
-
-function truncate(str: string, n: number) {
-    return (str.length > n) ? str.slice(0, n - 1) + '..' : str;
-};
+import { truncate } from './truncate.js';
 
 class DagRenderer {
     private svg;

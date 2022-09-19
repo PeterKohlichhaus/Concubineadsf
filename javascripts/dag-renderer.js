@@ -4,10 +4,7 @@ import * as d3 from 'd3';
 import sharp from 'sharp';
 import fs from 'fs';
 import { Collision } from './collision-detection/collision.js';
-function truncate(str, n) {
-    return (str.length > n) ? str.slice(0, n - 1) + '..' : str;
-}
-;
+import { truncate } from './truncate.js';
 class DagRenderer {
     constructor(dag, xMultiplier, yMultiplier, nodeWidth, nodeHeight, nodeRadius) {
         const layout = sugiyama().size([xMultiplier, yMultiplier]);
