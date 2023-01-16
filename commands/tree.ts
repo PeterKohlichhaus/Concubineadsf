@@ -40,20 +40,24 @@ const Tree = {
                         parents.push(parent);
                     }
 
-                    if (child) {
+                    if (child && (await pgClient.query(PersonTable.get(child))).rowCount > 0) {
                         data.push({
                             id: child,
                             name: (await interaction.client.users.fetch(child)).username,
                             parentIds: parents,
                             color: String((await pgClient.query(PersonTable.get(child))).rows[0].color)
                         });
+                    } else {
+                        interaction.reply({ ephemeral: true, content: `You don't have any children or parents.`});
                     }
                 }
             }
 
-            const dag = create(data);
+            console.log(data);
+
+            /*const dag = create(data);
             const newRender = new DagRenderer(dag, 900, 900, 220, 50, 25);
-            await newRender.createImage();
+            await newRender.createImage();*/
             interaction.reply({ files: ['/home/boom/Concubine/images/dag.png'] });
         }
     }
