@@ -3,14 +3,12 @@ import { CreateSvg } from './create-svg.js';
 import * as d3 from 'd3';
 import sharp from 'sharp';
 import fs from 'fs';
-import { Collision } from './collision-detection/collision.js';
-import { truncate } from './truncate.js';
 class DagRenderer {
     constructor(dag, xMultiplier, yMultiplier, nodeWidth, nodeHeight, nodeRadius) {
         const layout = sugiyama().size([xMultiplier, yMultiplier]);
         this.dag = dag;
-        const { width, height } = layout(this.dag);
-        this.svgHelper = new CreateSvg(width, height);
+        layout(this.dag);
+        this.svgHelper = new CreateSvg(xMultiplier, yMultiplier);
         this.svg = this.svgHelper.getSvg();
         this.render(nodeWidth, nodeHeight, nodeRadius);
     }
@@ -21,22 +19,20 @@ class DagRenderer {
         const buffer = await sharp(Buffer.from(this.svgString()))
             .png()
             .toBuffer();
-        fs.writeFileSync('images/dag.png', buffer);
+        const background = fs.readFileSync('/home/boom/Concubine/images/backgrounds/cute.jpg');
+        await sharp(background)
+            .composite([
+            { input: buffer }
+        ])
+            .toFile('images/dag.png');
     }
     render(nodeWidth, nodeHeight, nodeRadius) {
-        const arrowSize = 16;
         // How to draw edges
         const line = d3
             .line()
-            //.curve(d3.curveCatmullRom)
+            .curve(d3.curveStepBefore)
             .x((d) => d[0])
             .y((d) => d[1]);
-        // Background color
-        this.svg
-            .append('rect')
-            .attr('width', '100%')
-            .attr('height', '100%')
-            .attr('fill', '#ffffff');
         // Plot edges
         this.svg
             .append('g')
@@ -48,21 +44,29 @@ class DagRenderer {
             const data = points.map((point) => {
                 return [point.x, point.y];
             });
+            const lastPoint = points.at(-1);
+            if (lastPoint) {
+                data.push([lastPoint.x, lastPoint.y + 50]);
+            }
             const lineData = line(data);
             return (lineData) ? lineData : '';
         })
             .attr('fill', 'none')
-            .attr('stroke-width', '2px')
+            .attr('stroke-width', '4px')
             .attr('stroke', '#000000');
         const nodes = this.svg
             .append('g')
+            .attr('class', 'nodes')
             .selectAll('g')
             .data(this.dag.descendants())
             .enter()
             .append('g')
-            .attr('transform', ({ x, y }) => {
-            if (x && y) {
-                return `translate(${x}, ${y})`;
+            .attr('transform', (blah) => {
+            if (blah.value === 0) {
+                return `translate(${blah.x}, ${blah.y})`;
+            }
+            if (blah.x && blah.y) {
+                return `translate(${blah.x}, ${blah.y + 50})`;
             }
             return '';
         });
@@ -85,42 +89,16 @@ class DagRenderer {
             .attr('stroke', '#000000')
             .attr('stroke-width', '3px')
             .attr('opacity', '.70');
-        // Arrowheads
-        const arrow = d3.symbol().type(d3.symbolTriangle2).size(arrowSize * arrowSize);
-        this.svg.append('g')
-            .selectAll('path')
-            .data(this.dag.links())
-            .enter()
-            .append('path')
-            .attr('d', arrow)
-            .attr('transform', ({ points }) => {
-            const start = points.at(-2);
-            const end = points.at(-1);
-            if (start && end) {
-                const collision = new Collision();
-                const stadiumCollider = collision.stadiumCollider(end.x, end.y, nodeWidth, nodeHeight, nodeRadius, nodeRadius);
-                const lineCollider = collision.lineCollider(start.x, start.y, end.x, end.y);
-                const intersectionPoint = collision.intersectStadium(lineCollider, stadiumCollider);
-                if (intersectionPoint) {
-                    const tmpLine = collision.lineCollider(start.x, start.y, intersectionPoint.x, intersectionPoint.y);
-                    const ddd = collision.scaleLine(tmpLine, arrowSize * 0.65);
-                    return `translate(${ddd.x}, ${ddd.y}), rotate(${collision.radiansToDegrees(tmpLine.angle) + 270})`;
-                }
-            }
-            return ``;
-        })
-            .attr('fill', 'black')
-            .attr('stroke', 'none');
         // Add text to nodes
         nodes
             .append('text')
-            .text((d) => truncate(d.data.name, 13))
+            .text((d) => 'hello world! 😷 and good bye!')
             .attr('font-weight', 'bolder')
             .attr('font-family', 'Arial, Helvetica, sans-serif')
             .attr('text-anchor', 'middle')
-            .attr('dy', '4px')
-            .attr('fill', 'white')
-            .attr('font-size', '18px');
+            .attr('dy', '8px')
+            //.attr('fill', 'white')
+            .attr('font-size', '26px');
     }
 }
 export { DagRenderer };

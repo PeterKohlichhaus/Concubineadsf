@@ -1,14 +1,28 @@
 {
   "type": "module",
+  "target": "es2022",
+  "main": "./javascripts/index.js",
+  "scripts": {
+    "create-schema": "node ./javascripts/utils/create-schema.js",
+    "deploy-commands": "node ./javascripts/utils/deploy-commands.js"
+  },
   "dependencies": {
     "@types/d3": "^7.4.0",
+    "@types/glob": "^8.0.0",
     "@types/jsdom": "^20.0.0",
+    "@types/pg": "^8.6.6",
     "@types/sharp": "^0.30.5",
-    "d3": "^7.6.1",
-    "d3-dag": "^0.11.4",
-    "d3-node": "^2.2.3",
+    "d3": "^7.8.0",
+    "d3-dag": "^0.11.5",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
     "jsdom": "^20.0.0",
     "node-fetch": "^3.2.10",
+    "pg": "^8.8.0",
     "sharp": "^0.31.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.30.0",
+    "typescript": "^4.9.4"
   }
 }

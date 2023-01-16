@@ -32,7 +32,7 @@ class Collision {
     lineCollider(x1, y1, x2, y2) {
         const v = this.vertex(x1, y1);
         const w = this.vertex(x2, y2);
-        const angle = Math.atan2(y1 - y2, x1 - x2); /* * 1.5 * Math.PI;*/
+        const angle = Math.atan2(y1 - y2, x1 - x2); // hm???
         const length = this.lineDistance(v, w);
         return { start: v, end: w, length, angle };
     }

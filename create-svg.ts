@@ -19,7 +19,9 @@ class CreateSvg {
 
         this.svg
             .append('style')
-            .text('g text { filter: drop-shadow(0 0 2px #000000); }');
+            .text(
+                `g text { filter: drop-shadow(0 0 2px #000000); }`
+                );
     }
 
     public getWindow() {
