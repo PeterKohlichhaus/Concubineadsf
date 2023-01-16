@@ -117,12 +117,12 @@ class DagRenderer {
         // Add text to nodes
         nodes
             .append('text')
-            .text((d) => 'hello world! 😷 and good bye!')
+            .text((d) => truncate(d.data.name, 12))
             .attr('font-weight', 'bolder')
             .attr('font-family', 'Arial, Helvetica, sans-serif')
             .attr('text-anchor', 'middle')
             .attr('dy', '8px')
-            //.attr('fill', 'white')
+            .attr('fill', 'white')
             .attr('font-size', '26px');
     }
 }

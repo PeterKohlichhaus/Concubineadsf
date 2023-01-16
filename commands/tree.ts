@@ -27,38 +27,40 @@ const Tree = {
 
             const data: { id: string, name: string, parentIds: string[], color: string }[] = [];
 
-            for (const row of ancestry.rows) {
-                const child = row.child_id ? String(row.child_id) : null;
-                const parent = (row.parent_id) ? String(row.parent_id) : null;
+            // two because get_ancestory() and get_descendant() return always at least 1 row each
+            if (ancestry.rowCount > 2) {
+                for (const row of ancestry.rows) {
+                    const child = row.child_id ? String(row.child_id) : null;
+                    const parent = (row.parent_id) ? String(row.parent_id) : null;
 
-                const childFound = data.find(e => e.id === child);
-                if (childFound !== undefined && parent != null) {
-                    childFound.parentIds.push(parent);
-                } else {
-                    const parents = [];
-                    if (parent) {
-                        parents.push(parent);
-                    }
-
-                    if (child && (await pgClient.query(PersonTable.get(child))).rowCount > 0) {
-                        data.push({
-                            id: child,
-                            name: (await interaction.client.users.fetch(child)).username,
-                            parentIds: parents,
-                            color: String((await pgClient.query(PersonTable.get(child))).rows[0].color)
-                        });
+                    const childFound = data.find(e => e.id === child);
+                    if (childFound !== undefined && parent) {
+                        childFound.parentIds.push(parent);
                     } else {
-                        interaction.reply({ ephemeral: true, content: `You don't have any children or parents.`});
+                        const parents = [];
+                        if (parent) {
+                            parents.push(parent);
+                        }
+
+                        if (child) {
+                            data.push({
+                                id: child,
+                                name: (await interaction.client.users.fetch(child)).username,
+                                parentIds: parents,
+                                color: String((await pgClient.query(PersonTable.get(child))).rows[0].color)
+                            });
+                        }
                     }
                 }
+
+                const dag = create(data);
+                const newRender = new DagRenderer(dag, 900, 900, 220, 50, 25);
+                await newRender.createImage();
+
+                interaction.reply({ files: ['/home/boom/Concubine/images/dag.png'] });
+            } else {
+                interaction.reply({ ephemeral: true, content: `\u26A0 You don't have any children or parents.` });
             }
-
-            console.log(data);
-
-            /*const dag = create(data);
-            const newRender = new DagRenderer(dag, 900, 900, 220, 50, 25);
-            await newRender.createImage();*/
-            interaction.reply({ files: ['/home/boom/Concubine/images/dag.png'] });
         }
     }
 }

@@ -20,8 +20,9 @@ class CreateSvg {
         this.svg
             .append('style')
             .text(
-                `g text { filter: drop-shadow(0 0 2px #000000); }`
-                );
+                `g text { filter: drop-shadow(0 0 2px #000000); }
+                .nodes text { font-family: Twitter Color Emoji; src: '/usr/share/fonts/truetype/emoji/TwitterColorEmoji-SVGinOT.ttf' }`
+            );
     }
 
     public getWindow() {
