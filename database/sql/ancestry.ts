@@ -103,7 +103,7 @@ export class AncestryTable {
                     SELECT a.parent_id, a.child_id, cnt + 1, generations - 1
                     FROM ancestry a JOIN c ON a.child_id = c.parent_id
                     WHERE generations > 0
-                ) SELECT c.parent_id, c.child_id, c.cnt AS counter FROM c BY c.cnt;
+                ) SELECT c.parent_id, c.child_id, c.cnt AS counter FROM c ORDER BY c.cnt;
             END;
             $$ LANGUAGE plpgsql VOLATILE;`
         };
